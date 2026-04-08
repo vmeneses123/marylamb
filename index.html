@@ -4,29 +4,60 @@
 <meta charset="UTF-8">
 <title>BLE MIDI Visualizer</title>
 <style>
-  body { display: flex; justify-content: center; align-items: center; height: 100vh; background: #222; color: #fff; font-family: sans-serif; }
-  #circle { width: 200px; height: 200px; border-radius: 50%; background: #444; display: flex; justify-content: center; align-items: center; font-size: 48px; }
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #222;
+    font-family: Arial, sans-serif;
+  }
+
+  #circle {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background-color: #444;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 48px;
+    color: #fff;
+    transition: background-color 0.3s;
+  }
 </style>
 </head>
 <body>
+
 <div id="circle">–</div>
 
 <script>
-const circle = document.getElementById('circle');
-const ws = new WebSocket('ws://localhost:8765');
+  const circle = document.getElementById('circle');
 
-ws.onmessage = function(event) {
-    const data = JSON.parse(event.data);
-    const note = data.note;
-    
-    // Map MIDI numbers to note names
-    const noteNames = {60: 'C', 62: 'D', 64: 'E'};
-    const name = noteNames[note] || note;
+  // Connect to WebSocket server on port 8765
+  const ws = new WebSocket('ws://127.0.0.1:8765');
 
-    // Change circle color randomly
-    circle.style.background = `hsl(${Math.random()*360}, 80%, 50%)`;
-    circle.textContent = name;
-};
+  ws.onopen = () => console.log("Connected to WebSocket server");
+  ws.onclose = () => console.log("Disconnected from WebSocket server");
+  ws.onerror = (err) => console.error("WebSocket error:", err);
+
+  // When a note is received from Python server
+  ws.onmessage = function(event) {
+      const data = JSON.parse(event.data);
+      const note = data.note;
+
+      // Map MIDI numbers to note names
+      const noteNames = {60: 'C', 62: 'D', 64: 'E'};
+      const name = noteNames[note] || note;
+
+      // Change circle color randomly
+      circle.style.backgroundColor = `hsl(${Math.random()*360}, 80%, 50%)`;
+
+      // Display note
+      circle.textContent = name;
+  };
 </script>
+
 </body>
 </html>
