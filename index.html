@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BLE MIDI Visualizer</title>
+<style>
+  body { display: flex; justify-content: center; align-items: center; height: 100vh; background: #222; color: #fff; font-family: sans-serif; }
+  #circle { width: 200px; height: 200px; border-radius: 50%; background: #444; display: flex; justify-content: center; align-items: center; font-size: 48px; }
+</style>
+</head>
+<body>
+<div id="circle">–</div>
+
+<script>
+const circle = document.getElementById('circle');
+const ws = new WebSocket('ws://localhost:8765');
+
+ws.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    const note = data.note;
+    
+    // Map MIDI numbers to note names
+    const noteNames = {60: 'C', 62: 'D', 64: 'E'};
+    const name = noteNames[note] || note;
+
+    // Change circle color randomly
+    circle.style.background = `hsl(${Math.random()*360}, 80%, 50%)`;
+    circle.textContent = name;
+};
+</script>
+</body>
+</html>
